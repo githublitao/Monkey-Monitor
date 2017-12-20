@@ -1,8 +1,6 @@
 import logging
 import time
 
-import os
-
 from common import AdbCommon
 from common.monkeyTest import kill_port, start
 
