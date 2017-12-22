@@ -2,14 +2,13 @@ import logging
 
 __author__ = 'Administrator'
 import configparser
-import time
 import os
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
 )
 
 
-def monkeyConfig(init_file):
+def monkey_config(init_file):
     logging.info('读取配置文件')
     config = configparser.ConfigParser()
     config.read(init_file)

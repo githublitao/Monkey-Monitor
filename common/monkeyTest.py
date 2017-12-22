@@ -20,7 +20,7 @@ info = []
 
 
 # 手机信息
-def get_phome(devices):
+def get_phone(devices):
     os.popen('adb shell')
     logging.info('获取手机信息')
     bg = Phoneinfo.get_phone_kernel(devices)
@@ -40,7 +40,7 @@ def mkdirInit(devices, app, data=None):
     flow = PATH("../info/" + devices + "_flow.pickle")
     battery = PATH("../info/" + devices + "_battery.pickle")
     fps = PATH("../info/" + devices + "_fps.pickle")
-    app[devices] = {"cpu": cpu, "men": men, "flow": flow, "battery": battery, "fps": fps, "header": get_phome(devices)}
+    app[devices] = {"cpu": cpu, "men": men, "flow": flow, "battery": battery, "fps": fps, "header": get_phone(devices)}
     OperateFile(cpu).mkdir_file()
     OperateFile(men).mkdir_file()
     OperateFile(flow).mkdir_file()
@@ -65,6 +65,7 @@ def start(devices):
     start_monkey("adb -s " + devices + " shell " + mc["cmd"], mc["log"])
     time.sleep(1)
     starttime = datetime.datetime.now()
+    logging.info('测试开始时间 '+str(starttime))
     pid = Monitor.get_pid(mc["package_name"], devices)
     cpu_kel = Monitor.get_cpu_kel(devices)
     beforeBattery = Monitor.get_battery(devices)

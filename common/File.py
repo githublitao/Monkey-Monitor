@@ -10,36 +10,70 @@ import os
 
 
 class OperateFile:
-
     # method(r,w,a)
     def __init__(self, file, method='w+'):
+        """
+        :param file: 文件的路径
+        :param method: 读写方式r , r+ , w , w+ , a , a+， 默认w+，可读可写，若文件不存在，创建
+        """
         self.file = file
         self.method = method
         self.fileHandle = None
 
     def write_txt(self, line):
+        """
+        :param line: 写入的内容
+        :return:
+        """
         OperateFile(self.file).check_file()
-        self.fileHandle = open(self.file, self.method)
-        self.fileHandle.write(line + "\n")
-        self.fileHandle.close()
+        try:
+            logging.info('写入文件')
+            logging.debug(self.file + '写入内容' + line)
+            self.fileHandle = open(self.file, self.method)
+            self.fileHandle.write(line + "\n")
+            self.fileHandle.close()
+        except Exception as e:
+            logging.error('写入文件失败')
+            logging.error(e)
+            raise
 
     def read_txt_row(self):
         resutl = ""
-        if OperateFile(self.file).check_file():
-            self.fileHandle = open(self.file, self.method)
-            resutl = self.fileHandle.readline()
-            self.fileHandle.close()
-        return resutl
+        try:
+            logging.info('读取文件 ' + self.file)
+            if OperateFile(self.file).check_file():
+                self.fileHandle = open(self.file, self.method)
+                resutl = self.fileHandle.readline()
+                self.fileHandle.close()
+            logging.debug('读取的文件内容： ' + resutl)
+            return resutl
+        except Exception as e:
+            logging.error('读取文件失败')
+            logging.error(e)
+            raise
 
     def read_txt_rows(self):
-        if OperateFile(self.file).check_file():
-            self.fileHandle = open(self.file, self.method)
-            file_list = self.fileHandle.readlines()
-            for i in file_list:
-                logging.info(i.strip("\n"))
-            self.fileHandle.close()
+        try:
+            logging.info('读取文件 ' + self.file)
+            if OperateFile(self.file).check_file():
+                self.fileHandle = open(self.file, self.method)
+                file_list = self.fileHandle.readlines()
+                logging.debug('读取的文件内容： ')
+                logging.debug(file_list)
+                for i in file_list:
+                    logging.info(i.strip("\n"))
+                self.fileHandle.close()
+        except Exception as e:
+            logging.error('读取文件失败')
+            logging.error(e)
+            raise
 
     def check_file(self):
+        """
+        检查文件是否存在
+        :return:
+        """
+        logging.info('检查文件是否存在 ' + self.file)
         if not os.path.isfile(self.file):
             logging.info('文件不存在' + self.file)
             # sys.exit()
@@ -49,24 +83,50 @@ class OperateFile:
         # print("文件存在！")
 
     def mkdir_file(self):
-        if not os.path.isfile(self.file):
-            f = open(self.file, self.method)
-            f.close()
-            logging.info("创建文件成功")
-        else:
-            os.remove(self.file)
-            f = open(self.file, self.method)
-            f.close()
-            logging.info("创建文件成功")
+        """
+        创建文件目录
+        :return:
+        """
+        try:
+            logging.info('创建文件 ' + self.file)
+            if not os.path.isfile(self.file):
+                f = open(self.file, self.method)
+                f.close()
+                logging.info("创建文件成功 " + self.file)
+            else:
+                os.remove(self.file)
+                f = open(self.file, self.method)
+                f.close()
+                logging.info("创建文件成功 " + self.file)
+        except Exception as e:
+            logging.error('创建文件失败 ' + self.file)
+            logging.error(e)
+            raise
 
     def remove_file(self):
-        if os.path.isfile(self.file):
-            os.remove(self.file)
-            logging.info("删除文件成功")
-        else:
-            logging.info("文件不存在")
+        """
+        删除文件
+        :return:
+        """
+        logging.info('删除文件 ' + self.file)
+        try:
+            if os.path.isfile(self.file):
+                os.remove(self.file)
+                logging.info("删除文件成功")
+            else:
+                logging.info("文件不存在 " + self.file)
+        except Exception as e:
+            logging.error('删除文件失败 ' + self.file)
+            logging.error(e)
+            raise
+
+
 # if __name__ == '__main__':
+#     logging.basicConfig(level=logging.DEBUG,
+#                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+#                         datefmt='%a, %d %b %Y %H:%M:%S',
+#                         filemode='w')
 #     bf = OperateFile("text.xml")
-#     if bf.check_file() == False:
+#     if not bf.check_file():
 #         bf.mkdir_file()
 #     bf.write_txt("111")
