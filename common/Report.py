@@ -114,12 +114,15 @@ class OperateReport:
             lines = monkey_log.readlines()
             for line in lines:
                 if re.findall(go.ANR, line):
+                    logging.debug(line)
                     logging.info("存在anr错误:" + line)
                     self._crashM.append(line)
                 if re.findall(go.CRASH, line):
+                    logging.debug(line)
                     logging.info("存在crash错误:" + line)
                     self._crashM.append(line)
                 if re.findall(go.EXCEPTION, line):
+                    logging.debug(line)
                     logging.info("存在crash错误:" + line)
                     self._crashM.append(line)
             monkey_log.close()
@@ -129,11 +132,12 @@ class OperateReport:
             worksheet = self.wd.add_worksheet("crash")
             _write_center(worksheet, "A1", '崩溃统计日志', self.wd)
             temp = 2
+            logging.debug(self._crashM)
             for item in self._crashM:
                 _write_center(worksheet, "A" + str(temp), item, self.wd)
                 temp = temp + 1
 
-    def plot(self, worksheet, types, lenData, name):
+    def plot(self, worksheet, types, lenData, name, num):
         """
         :param worksheet:
         :param types: cpu,fps,flow,battery
@@ -147,31 +151,38 @@ class OperateReport:
         if types == "cpu":
             values = "=" + name + "!$A$1:$A$" + str(lenData + 1)
             row = 'H2'
-            title = "cpu使用率"
+            title = "CPU使用率"
         elif types == "men":
             values = "=" + name + "!$B$1:$B$" + str(lenData + 1)
-            row = 'H9'
+            row = 'H11'
             title = "内存使用MB"
         elif types == "fps":
             values = "=" + name + "!$C$1:$C$" + str(lenData + 1)
-            row = 'H24'
-            title = "fps使用情况"
+            row = 'H27'
+            title = "FPS使用情况"
         elif types == "battery":
             values = "=" + name + "!$D$1:$D$" + str(lenData + 1)
-            row = 'P2'
+            row = 'H43'
             title = "电池剩余%"
         elif types == "flowUp":
             values = "=" + name + "!$E$1:$E$" + str(lenData + 1)
-            row = 'P9'
+            row = 'H59'
             title = "上行流量KB"
         elif types == "flowDown":
             values = "=" + name + "!$F$1:$F$" + str(lenData + 1)
-            row = 'P24'
+            row = 'H76'
             title = "下行流量KB"
         chart1 = self.wd.add_chart({'type': 'line'})
         chart1.add_series({
             'values': values
         })
+        logging.info('num= '+str(num))
+        width = num*10
+        if width <= 450:
+            width = 450
+        elif width >= 1600:
+            width = 1600
+        chart1.set_size({'width': width})
         chart1.set_title({'name': title})
         # worksheet.insert_chart('A9', chart1, {'x_offset': 2, 'y_offset': 2})
         worksheet.insert_chart(row, chart1)
@@ -255,12 +266,12 @@ class OperateReport:
                         else:
                             _write_center(worksheet, "F" + str(temp), 0, self.wd)
                         temp = temp + 1
-                    self.plot(worksheet, "cpu", len(cpu), name)
-                    self.plot(worksheet, "men", len(men), name)
-                    self.plot(worksheet, "battery", len(battery), name)
-                    self.plot(worksheet, "fps", len(fps), name)
-                    self.plot(worksheet, "flowUp", len(flow[0]), name)
-                    self.plot(worksheet, "flowDown", len(flow[1]), name)
+                    self.plot(worksheet, "cpu", len(cpu), name, t[wrap]["num"])
+                    self.plot(worksheet, "men", len(men), name, t[wrap]["num"])
+                    self.plot(worksheet, "battery", len(battery), name, t[wrap]["num"])
+                    self.plot(worksheet, "fps", len(fps), name, t[wrap]["num"])
+                    self.plot(worksheet, "flowUp", len(flow[0]), name, t[wrap]["num"])
+                    self.plot(worksheet, "flowDown", len(flow[1]), name, t[wrap]["num"])
                     break
 
 
@@ -306,6 +317,7 @@ def set_row(worksheet, num, height):
 #                             'phone_name': 'H60-L02_Huawei_4.4',
 #                             'net': 'gprs'
 #                         },
+#                     'num': '200',
 #                     'fps': 'H:\\project\\monkey_report\\info\\EAROU8VOSKAM99I7_fps.pickle'
 #                 }
 #         }

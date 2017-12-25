@@ -100,7 +100,7 @@ def max_flow(flow):
     :return:
     """
     logging.info('----------计算最大的上传流量及下载流量----------')
-    logging.debug("flow = "+flow)
+    logging.debug(flow)
     _flowUp = []
     _flowDown = []
     for i in range(len(flow[0])):
@@ -133,7 +133,7 @@ def avg_flow(flow):
     :return:
     """
     logging.info('----------计算平均上传流量及下载流量----------')
-    logging.debug("flow = "+flow)
+    logging.debug(flow)
     _flowUp = []
     _flowDown = []
     for i in range(len(flow[0])):

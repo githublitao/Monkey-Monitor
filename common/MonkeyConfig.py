@@ -10,14 +10,20 @@ PATH = lambda p: os.path.abspath(
 
 def monkey_config(init_file):
     logging.info('读取配置文件')
-    config = configparser.ConfigParser()
-    config.read(init_file)
-    app = {}
-    app["package_name"] = config['DEFAULT']['package_name']
-    # app["activity"] = config['DEFAULT']['activity']
-    app["net"] = config['DEFAULT']['net']
-    app["cmd"] = config['DEFAULT']['cmd'] + ">"
-    return app
+    try:
+        config = configparser.ConfigParser()
+        config.read(init_file)
+        app = {}
+        logging.debug(config)
+        app["package_name"] = config['DEFAULT']['package_name']
+        # app["activity"] = config['DEFAULT']['activity']
+        app["net"] = config['DEFAULT']['net']
+        app["cmd"] = config['DEFAULT']['cmd'] + ">"
+        return app
+    except Exception as e:
+        logging.error('读取配置文件失败')
+        logging.error(e)
+        raise
 
 
 # if __name__ == '__main__':

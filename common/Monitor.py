@@ -6,12 +6,8 @@ from wsgiref.validate import validator
 import time
 import logging
 
-from common import Pickle
+from common import Pickle, Path
 from common.Custom_exception import GetPidError, ConnectAdbError
-
-PATH = lambda p: os.path.abspath(
-    os.path.join(os.path.dirname(__file__), p)
-)
 
 
 # 获取menu
@@ -40,7 +36,8 @@ def get_men(pkg_name, devices):
         logging.error(e)
         men2 = 0
     logging.info('读取内存占用： ' + str(men2))
-    Pickle.write_info(men2, PATH("../info/" + devices + "_men.pickle"))
+    Pickle.write_info(men2, Path.scan_files(select_path=Path.info_path(), postfix=devices+'_men.pickle'))
+    # Pickle.write_info(men2, PATH("../info/" + devices + "_men.pickle"))
     return men2
 
 
@@ -101,7 +98,8 @@ def get_fps(pkg_name, devices):
         logging.error(e)
         _fps = 0
     logging.info('读取FPS： '+str(_fps))
-    Pickle.write_info(_fps, PATH("../info/" + devices + "_fps.pickle"))
+    Pickle.write_info(_fps, Path.scan_files(select_path=Path.info_path(), postfix=devices+'_fps.pickle'))
+    # Pickle.write_info(_fps, PATH("../info/" + devices + "_fps.pickle"))
 
 
 def get_battery(devices):
@@ -128,7 +126,8 @@ def get_battery(devices):
         logging.error(e)
         battery2 = 90
     logging.info('读取手机电量： '+str(battery2))
-    Pickle.write_info(battery2, PATH("../info/" + devices + "_battery.pickle"))
+    # Pickle.write_info(battery2, PATH("../info/" + devices + "_battery.pickle"))
+    Pickle.write_info(battery2, Path.scan_files(select_path=Path.info_path(), postfix=devices + '_battery.pickle'))
     return battery2
 
 
@@ -191,7 +190,8 @@ def get_flow(pd, types, devices):
                     break
             logging.info("上传流量：%sKB  " % up_flow)
             logging.info("下载流量：%sKB  " % down_flow)
-            Pickle.write_flow_info(up_flow, down_flow, PATH("../info/" + devices + "_flow.pickle"))
+            # Pickle.write_flow_info(up_flow, down_flow, PATH("../info/" + devices + "_flow.pickle"))
+            Pickle.write_flow_info(up_flow, down_flow, Path.scan_files(select_path=Path.info_path(), postfix=devices+'_flow.pickle'))
     except ConnectAdbError as e:
         logging.error(e)
         raise
@@ -219,9 +219,7 @@ def total_cpu_time(devices):
     try:
         cmd = "adb -s " + devices + " shell cat /proc/stat"
         logging.info(cmd)
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
         if not p:
             raise ConnectAdbError
         logging.debug(p)
@@ -333,20 +331,28 @@ def cpu_rate(pd, cpu_num, devices):
     :return:
     """
     process_cpu_time1 = process_cpu_time(pd, devices)
+    # print(process_cpu_time1)
     time.sleep(1)
     process_cpu_time2 = process_cpu_time(pd, devices)
+    # print(process_cpu_time2)
     process_cpu_time3 = process_cpu_time2 - process_cpu_time1
+    # print(process_cpu_time3)
     total_cpu_time1 = total_cpu_time(devices)
+    # print(total_cpu_time1)
     time.sleep(1)
     total_cpu_time2 = total_cpu_time(devices)
+    # print(total_cpu_time2)
     total_cpu_time3 = (total_cpu_time2 - total_cpu_time1)*cpu_num
+    # print(total_cpu_time3)
     logging.info("totalCpuTime3="+str(total_cpu_time3))
     logging.info("processCpuTime3="+str(process_cpu_time3))
-    try:
-        cpu = 100 * process_cpu_time3 / total_cpu_time3
-    except:
-        cpu = 0
-    Pickle.write_info(cpu, PATH("../info/" + devices + "_cpu.pickle"))
+    # try:
+    #     cpu = 100 * process_cpu_time3 / total_cpu_time3
+    # except:
+    #     cpu = 0
+    cpu = 100 * process_cpu_time3 / total_cpu_time3
+    # Pickle.write_info(cpu, PATH("../info/" + devices + "_cpu.pickle"))
+    Pickle.write_info(cpu, Path.scan_files(select_path=Path.info_path(), postfix=devices+'_cpu.pickle'))
     logging.info("CPU使用率： " + str(cpu)+'%')
 
 
@@ -355,11 +361,11 @@ def cpu_rate(pd, cpu_num, devices):
 #                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
 #                         datefmt='%a, %d %b %Y %H:%M:%S',
 #                         filemode='w')
-#     # get_fps('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
-#     pid = get_pid('com.sixtyplus.nidfit.treadmill.app', '0123456789ABCDEF')
-#     print(pid)
-#     # get_battery('EAROU8VOSKAM99I7')
-#     get_cpu_kel('0123456789ABCDEF')
-#     # get_flow(pid, 'gprs', 'EAROU8VOSKAM99I7')
-#     # get_men('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
-#     cpu_rate(pid,get_cpu_kel('0123456789ABCDEF'),'0123456789ABCDEF')
+#     while True:
+#         # get_fps('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+#         pid = get_pid('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+#         # get_battery('EAROU8VOSKAM99I7')
+#         get_cpu_kel('EAROU8VOSKAM99I7')
+#         # get_flow(pid, 'gprs', 'EAROU8VOSKAM99I7')
+#         # get_men('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+#         cpu_rate(pid, get_cpu_kel('EAROU8VOSKAM99I7'),'EAROU8VOSKAM99I7')
