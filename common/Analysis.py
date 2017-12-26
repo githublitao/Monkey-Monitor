@@ -5,7 +5,7 @@ import math
 
 
 # total 是rom容量
-def avg_men(men, total):
+def avg_men(men):
     """
     计算平均内存消耗
     :param men: 测试过程中获取的内存占用情况的列表
@@ -14,11 +14,10 @@ def avg_men(men, total):
     """
     if len(men):
         logging.info('----------计算平均内存消耗----------')
-        _men = [math.ceil(((men[i]) / total) * 1024) for i in range(len(men))]
-        logging.debug(_men)
-        men = str(math.ceil(sum(_men) / len(_men))) + "M"
-        logging.info('计算平均内存消耗： ' + men)
-        return men
+        result = "%.2f" % (sum(men) / len(men) / 1024)
+        _men = str(result)+'M'
+        logging.info('计算平均CPU消耗： ' + _men)
+        return _men
     return "0"
 
 
@@ -30,9 +29,8 @@ def avg_cpu(cpu):
     """
     if len(cpu):
         logging.info('----------计算评价CPU消耗----------')
-        resutl = "%.1f" % (sum(cpu) / len(cpu))
-        logging.debug("resutl = "+resutl)
-        cpu = str(math.ceil(float(resutl)*10)) + "%"
+        result = "%.2f" % (sum(cpu) / len(cpu))
+        cpu = str(result)+"%"
         logging.info('计算平均CPU消耗： ' + cpu)
         return cpu
     return "0%"
@@ -74,9 +72,9 @@ def max_cpu(cpu):
     logging.info('----------计算最大的CPU消耗-----------')
     logging.info("maxCpu="+str(cpu))
     if len(cpu):
-        result = "%.1f" % max(cpu)
+        result = "%.2f" % max(cpu)
         logging.debug("result = "+result)
-        cpu = str(math.ceil(float(result)*10)) + "%"
+        cpu = str(math.ceil(float(result))) + "%"
         logging.info('最大的CPU消耗： '+cpu)
         return cpu
     return "0%"

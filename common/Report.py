@@ -55,25 +55,24 @@ class OperateReport:
         define_format_H2.set_align("center")
         define_format_H2.set_bg_color("blue")
         define_format_H2.set_color("#ffffff")
-        worksheet.merge_range('A1:R1', 'monkey性能监控', define_format_H1)
+        worksheet.merge_range('A1:Q1', 'monkey性能监控', define_format_H1)
         _write_center(worksheet, "A2", '设备名', self.wd)
         _write_center(worksheet, "B2", 'CPU', self.wd)
         _write_center(worksheet, "C2", '内存', self.wd)
         _write_center(worksheet, "D2", '分辨率', self.wd)
-        _write_center(worksheet, "E2", '网络', self.wd)
-        _write_center(worksheet, "F2", "耗时", self.wd)
-        _write_center(worksheet, "G2", "CPU峰值", self.wd)
-        _write_center(worksheet, "H2", "CPU均值", self.wd)
-        _write_center(worksheet, "I2", "内存峰值", self.wd)
-        _write_center(worksheet, "J2", "内存均值", self.wd)
-        _write_center(worksheet, "K2", "fps峰值", self.wd)
-        _write_center(worksheet, "L2", "fps均值", self.wd)
-        _write_center(worksheet, "M2", "电量测试之前", self.wd)
-        _write_center(worksheet, "N2", "电量测试之后", self.wd)
-        _write_center(worksheet, "O2", "上行流量峰值", self.wd)
-        _write_center(worksheet, "P2", "上行流量均值", self.wd)
-        _write_center(worksheet, "Q2", "下行流量峰值", self.wd)
-        _write_center(worksheet, "R2", "下行流量均值", self.wd)
+        _write_center(worksheet, "E2", "耗时", self.wd)
+        _write_center(worksheet, "F2", "CPU峰值", self.wd)
+        _write_center(worksheet, "G2", "CPU均值", self.wd)
+        _write_center(worksheet, "H2", "内存峰值", self.wd)
+        _write_center(worksheet, "I2", "内存均值", self.wd)
+        _write_center(worksheet, "J2", "fps峰值", self.wd)
+        _write_center(worksheet, "K2", "fps均值", self.wd)
+        _write_center(worksheet, "L2", "电量测试之前", self.wd)
+        _write_center(worksheet, "M2", "电量测试之后", self.wd)
+        _write_center(worksheet, "N2", "上行流量峰值", self.wd)
+        _write_center(worksheet, "O2", "上行流量均值", self.wd)
+        _write_center(worksheet, "P2", "下行流量峰值", self.wd)
+        _write_center(worksheet, "Q2", "下行流量均值", self.wd)
 
         temp = 3
         for t in info:
@@ -84,27 +83,26 @@ class OperateReport:
                     _write_center(worksheet, "B" + str(temp), t[wrap]["header"]["kel"], self.wd)
                     _write_center(worksheet, "C" + str(temp), str(math.ceil(t[wrap]["header"]["rom"] / 1024)) + "M", self.wd)
                     _write_center(worksheet, "D" + str(temp), t[wrap]["header"]["pix"], self.wd)
-                    _write_center(worksheet, "E" + str(temp), t[wrap]["header"]["net"], self.wd)
-                    _write_center(worksheet, "F" + str(temp), t[wrap]["header"]["time"], self.wd)
+                    _write_center(worksheet, "E" + str(temp), t[wrap]["header"]["time"], self.wd)
 
                     cpu = Pickle.read_info(t[wrap]["cpu"])
                     men = Pickle.read_info(t[wrap]["men"])
                     fps = Pickle.read_info(t[wrap]["fps"])
                     flow = Pickle.read_info(t[wrap]["flow"])
-                    _write_center(worksheet, "G" + str(temp), Analysis.max_cpu(cpu), self.wd)
-                    _write_center(worksheet, "H" + str(temp), Analysis.avg_cpu(cpu), self.wd)
-                    _write_center(worksheet, "I" + str(temp), Analysis.max_men(men), self.wd)
-                    _write_center(worksheet, "J" + str(temp), Analysis.avg_men(men, t[wrap]["header"]["rom"]), self.wd)
-                    _write_center(worksheet, "K" + str(temp), Analysis.max_fps(fps), self.wd)
-                    _write_center(worksheet, "L" + str(temp), Analysis.avg_fps(fps), self.wd)
-                    _write_center(worksheet, "M" + str(temp), t[wrap]["header"]["beforeBattery"], self.wd)
-                    _write_center(worksheet, "N" + str(temp), t[wrap]["header"]["afterBattery"], self.wd)
+                    _write_center(worksheet, "F" + str(temp), Analysis.max_cpu(cpu), self.wd)
+                    _write_center(worksheet, "G" + str(temp), Analysis.avg_cpu(cpu), self.wd)
+                    _write_center(worksheet, "H" + str(temp), Analysis.max_men(men), self.wd)
+                    _write_center(worksheet, "I" + str(temp), Analysis.avg_men(men), self.wd)
+                    _write_center(worksheet, "J" + str(temp), Analysis.max_fps(fps), self.wd)
+                    _write_center(worksheet, "K" + str(temp), Analysis.avg_fps(fps), self.wd)
+                    _write_center(worksheet, "L" + str(temp), t[wrap]["header"]["beforeBattery"], self.wd)
+                    _write_center(worksheet, "M" + str(temp), t[wrap]["header"]["afterBattery"], self.wd)
                     _maxFlow = Analysis.max_flow(flow)
                     _avgFLow = Analysis.avg_flow(flow)
-                    _write_center(worksheet, "O" + str(temp), _maxFlow[0], self.wd)
-                    _write_center(worksheet, "Q" + str(temp), _maxFlow[1], self.wd)
+                    _write_center(worksheet, "N" + str(temp), _maxFlow[0], self.wd)
+                    _write_center(worksheet, "O" + str(temp), _maxFlow[1], self.wd)
                     _write_center(worksheet, "P" + str(temp), _avgFLow[1], self.wd)
-                    _write_center(worksheet, "R" + str(temp), _avgFLow[1], self.wd)
+                    _write_center(worksheet, "Q" + str(temp), _avgFLow[1], self.wd)
 
                     break
                 temp = temp + 1
@@ -176,7 +174,6 @@ class OperateReport:
         chart1.add_series({
             'values': values
         })
-        logging.info('num= '+str(num))
         width = num*10
         if width <= 450:
             width = 450
@@ -229,7 +226,7 @@ class OperateReport:
                     temp = 2
                     cpu = Pickle.read_info(t[wrap]["cpu"])
                     for item in cpu:
-                        _write_center(worksheet, "A" + str(temp), float("%.1f" % item)*10, self.wd)
+                        _write_center(worksheet, "A" + str(temp), float("%.2f" % item), self.wd)
                         temp = temp + 1
 
                     temp = 2
@@ -315,7 +312,6 @@ def set_row(worksheet, num, height):
 #                             'time': '15秒',
 #                             'afterBattery': 94,
 #                             'phone_name': 'H60-L02_Huawei_4.4',
-#                             'net': 'gprs'
 #                         },
 #                     'num': '200',
 #                     'fps': 'H:\\project\\monkey_report\\info\\EAROU8VOSKAM99I7_fps.pickle'

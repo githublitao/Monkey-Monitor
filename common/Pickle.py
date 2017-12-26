@@ -3,6 +3,8 @@ import logging
 import pickle
 import os
 
+from common import Path
+
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__), p)
 )
@@ -124,8 +126,6 @@ def write_flow_info(upflow, downflow, path="data.pickle"):
     :return:
     """
     logging.info('写入流量信息')
-    logging.debug("上行流量="+str(upflow))
-    logging.debug("下行流量="+str(downflow))
     logging.debug(path)
     try:
         _read = read_info(path)
@@ -149,4 +149,8 @@ def write_flow_info(upflow, downflow, path="data.pickle"):
         raise
 
 
-
+# print(read_info('H:\\project\Monkey-Monitor\\info\\EAROU8VOSKAM99I7_battery.pickle'))
+# print(read_info('H:\\project\Monkey-Monitor\\info\\EAROU8VOSKAM99I7_cpu.pickle'))
+# print(read_info('H:\\project\Monkey-Monitor\\info\\EAROU8VOSKAM99I7_flow.pickle'))
+# print(read_info('H:\\project\Monkey-Monitor\\info\\EAROU8VOSKAM99I7_fps.pickle'))
+# print(read_info('H:\\project\Monkey-Monitor\\info\\EAROU8VOSKAM99I7_men.pickle'))

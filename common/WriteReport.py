@@ -2,6 +2,7 @@ import logging
 import xlsxwriter
 
 from common import Path
+from common.Pickle import read_info
 from common.Report import OperateReport
 
 
@@ -23,3 +24,5 @@ def report(info):
         logging.error(e)
         raise
 
+
+# report(read_info('H:\\project\Monkey-Monitor\\info\\info.pickle'))

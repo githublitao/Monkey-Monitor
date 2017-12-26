@@ -158,40 +158,36 @@ def get_pid(pkg_name, devices):
         raise
 
 
-def get_flow(pd, types, devices):
+def get_flow(uid, devices):
     """
     获取应用的流量信息   adb -s 设备的唯一标识（devices） shell cat /proc/PID(pd)/net/dev
-    :param pd: PID值
-    :param types: 网络类型，wifi或者GPRS
+    :param uid: UID值
     :param devices: 被测设备唯一标识
     :return:
     """
-    up_flow = 0
-    down_flow = 0
     logging.info('获取应用的流量信息')
     try:
-        if pd is not None:
-            cmd = "adb -s " + devices + " shell cat /proc/" + pd + "/net/dev"
+        if uid is not None:
+            cmd = "adb -s " + devices + " shell cat /proc/uid_stat/" + uid + "/tcp_snd"
             logging.info(cmd)
             _flow = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE).stdout.readlines()
+                                     stderr=subprocess.PIPE).stdout.readlines()
             if not _flow:
                 raise ConnectAdbError
             logging.debug(_flow)
-            for item in _flow:
-                if types == "wifi" and item.split()[0].decode() == "wlan0:":  # wifi
-                    # 0 上传流量，1 下载流量
-                    up_flow = int(item.split()[1].decode())
-                    down_flow = int(item.split()[9].decode())
-                    break
-                if types == "gprs" and item.split()[0].decode() == "rmnet0:":  # gprs
-                    up_flow = int(item.split()[1].decode())
-                    down_flow = int(item.split()[9].decode())
-                    break
-            logging.info("上传流量：%sKB  " % up_flow)
-            logging.info("下载流量：%sKB  " % down_flow)
-            # Pickle.write_flow_info(up_flow, down_flow, PATH("../info/" + devices + "_flow.pickle"))
-            Pickle.write_flow_info(up_flow, down_flow, Path.scan_files(select_path=Path.info_path(), postfix=devices+'_flow.pickle'))
+            up_flow = _flow[0].split()[0].decode()
+            logging.debug('上行流量： %sKB ' % up_flow)
+            _adb = "adb -s " + devices + " shell cat /proc/uid_stat/" + uid + "/tcp_rcv"
+            logging.info(_adb)
+            _flow_down = subprocess.Popen(_adb, shell=True, stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE).stdout.readlines()
+            if not _flow_down:
+                raise ConnectAdbError
+            logging.debug(_flow_down)
+            down_flow = _flow_down[0].split()[0].decode()
+            logging.debug('下行流量： %sKB ' % down_flow)
+            Pickle.write_flow_info(int(up_flow), int(down_flow), Path.scan_files(select_path=Path.info_path(),
+                                                                       postfix=devices+'_flow.pickle'))
     except ConnectAdbError as e:
         logging.error(e)
         raise
@@ -202,7 +198,7 @@ def get_flow(pd, types, devices):
 
 def total_cpu_time(devices):
     """
-    运行过程中CPU处理时间  adb - s 设备的唯一标识（devices）shell cat /proc/stat
+    CPU快照  adb - s 设备的唯一标识（devices）shell cat /proc/stat
     user: 从系统启动开始累计到当前时刻，处于用户态的运行时间，不包含 nice值为负进程。
     nice: 从系统启动开始累计到当前时刻，nice值为负的进程所占用的CPU时间
     system: 从系统启动开始累计到当前时刻，处于核心态的运行时间
@@ -256,7 +252,7 @@ def total_cpu_time(devices):
 
 def process_cpu_time(pd, devices):
     """
-    获取该应用运行时间 adb -s 设备的唯一标识（devices) shell cat /porc/PID(pd)/stat
+    进程快照 adb -s 设备的唯一标识（devices) shell cat /proc/PID(pd)/stat
     pid： 进程号
     u_time： 该任务在用户态运行的时间，单位为jiffies
     s_time： 该任务在核心态运行的时间，单位为jiffies
@@ -356,16 +352,44 @@ def cpu_rate(pd, cpu_num, devices):
     logging.info("CPU使用率： " + str(cpu)+'%')
 
 
+def get_uid(pd, devices):
+    """
+    获取待测应用的uid值  adb -s devices shell cat /proc/pd/status
+    :param pd: PID值
+    :param devices:  设备的唯一标识
+    :return:
+    """
+    try:
+        logging.info('获取应用的UID值')
+        cmd = 'adb -s '+devices+' shell cat /proc/'+pd+'/status'
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+        (output, err) = p.communicate()
+        if not output:
+            raise ConnectAdbError
+        uid = output.split()[14].decode()
+        logging.debug('UID值： '+uid)
+        return uid
+    except ConnectAdbError as e:
+        logging.error('获取应用uid失败')
+        logging.error(e)
+        raise
+    except Exception as e:
+        logging.error(e)
+
+
 # if __name__ == '__main__':
 #     logging.basicConfig(level=logging.DEBUG,
 #                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
 #                         datefmt='%a, %d %b %Y %H:%M:%S',
 #                         filemode='w')
-#     while True:
-#         # get_fps('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
-#         pid = get_pid('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
-#         # get_battery('EAROU8VOSKAM99I7')
-#         get_cpu_kel('EAROU8VOSKAM99I7')
-#         # get_flow(pid, 'gprs', 'EAROU8VOSKAM99I7')
-#         # get_men('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
-#         cpu_rate(pid, get_cpu_kel('EAROU8VOSKAM99I7'),'EAROU8VOSKAM99I7')
+#     pid = get_pid('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+#     uid = get_uid(pid, 'EAROU8VOSKAM99I7')
+#     get_flow(uid, 'EAROU8VOSKAM99I7')
+    # while True:
+    #     # get_fps('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+    #     pid = get_pid('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+    #     # get_battery('EAROU8VOSKAM99I7')
+    #     get_cpu_kel('EAROU8VOSKAM99I7')
+    #     # get_flow(pid, 'gprs', 'EAROU8VOSKAM99I7')
+    #     # get_men('com.sixty.nidoneClient', 'EAROU8VOSKAM99I7')
+    #     cpu_rate(pid, get_cpu_kel('EAROU8VOSKAM99I7'),'EAROU8VOSKAM99I7')

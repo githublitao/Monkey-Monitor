@@ -1,4 +1,5 @@
 #   封装配置文件地址
+import logging
 import os
 
 from common.File import OperateFile
@@ -46,14 +47,17 @@ def scan_files(select_path=father_path, prefix=None, postfix=None):
     """
     #   返回文件路径
     files_list = []
-    for root, sub_dirs, files in os.walk(select_path):
-        for special_file in files:
-            if postfix:
-                if special_file.endswith(postfix):
+    try:
+        for root, sub_dirs, files in os.walk(select_path):
+            for special_file in files:
+                if postfix:
+                    if special_file.endswith(postfix):
+                        files_list.append(os.path.join(root, special_file))
+                elif prefix:
+                    if special_file.startswith(prefix):
+                        files_list.append(os.path.join(root, special_file))
+                else:
                     files_list.append(os.path.join(root, special_file))
-            elif prefix:
-                if special_file.startswith(prefix):
-                    files_list.append(os.path.join(root, special_file))
-            else:
-                files_list.append(os.path.join(root, special_file))
-    return files_list[0]
+        return files_list[0]
+    except Exception as e:
+        logging.error(e)

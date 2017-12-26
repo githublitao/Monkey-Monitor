@@ -6,7 +6,7 @@ import time
 
 import datetime
 
-from common import Phoneinfo, MonkeyConfig, Monitor, Path
+from common import Phoneinfo, Monitor, Path, Monkey_Config
 from common.File import OperateFile
 from common.Pickle import write_info, read_info
 from common.WriteReport import report
@@ -61,46 +61,47 @@ def start(devices):
     # num = devicess["num"]
     app = {}
     mkdirInit(devices, app)
-    mc = MonkeyConfig.monkey_config(Path.scan_files(postfix='.ini'))
+    # mc = MonkeyConfig.monkey_config(Path.scan_files(postfix='.ini'))
     # 打开想要的activity
     # ba.open_app(mc["package_name"], mc["activity"], devices) 留着备用可以统计每次打开哪个页面的启动时间等
     # monkey开始测试
-    mc["log"] = Path.log_path() + "\\" + str(uuid.uuid4())
-    logging.debug('log路径 ' + mc["log"])
-    mc["monkey_log"] = mc["log"] + "monkey.log"
-    logging.debug('monkey日志路径： '+mc["monkey_log"])
-    mc["cmd"] = mc['cmd'] + mc["monkey_log"]
-    start_monkey("adb -s " + devices + " shell " + mc["cmd"], mc["log"])
+    log = Path.log_path() + "\\" + str(uuid.uuid4())
+    logging.debug('log路径 ' + log)
+    monkey_log = log + "monkey.log"
+    logging.debug('monkey日志路径： '+monkey_log)
+    package_name, monkey = Monkey_Config.monkey_config()
+    # mc["cmd"] = mc['cmd'] + mc["monkey_log"]
+    start_monkey("adb -s " + devices + " shell " + monkey + '>' + monkey_log, log)
+    # start_monkey("adb -s " + devices + " shell " + mc["cmd"], mc["log"])
     time.sleep(1)
     start_time = datetime.datetime.now()
     logging.info('测试开始时间 '+str(start_time))
-    pid = Monitor.get_pid(mc["package_name"], devices)
+    pid = Monitor.get_pid(package_name, devices)
+    uid = Monitor.get_uid(pid, devices)
     cpu_kel = Monitor.get_cpu_kel(devices)
     before_battery = Monitor.get_battery(devices)
     num = 0
     while True:
-        with open(mc["monkey_log"], encoding='utf-8') as monkey_log:
+        with open(monkey_log, encoding='utf-8') as monkeylog:
             time.sleep(1)  # 每1秒采集检查一次
             num = num+1
             Monitor.cpu_rate(pid, cpu_kel, devices)
-            Monitor.get_men(mc["package_name"], devices)
-            Monitor.get_fps(mc["package_name"], devices)
-            Monitor.get_flow(pid, mc["net"], devices)
+            Monitor.get_men(package_name, devices)
+            Monitor.get_fps(package_name, devices)
+            Monitor.get_flow(uid, devices)
             Monitor.get_battery(devices)
-            if monkey_log.read().count('Monkey finished') > 0:
+            if monkeylog.read().count('Monkey finished') > 0:
                 end_time = datetime.datetime.now()
                 logging.info(str(devices)+"测试完成咯")
-                # write_sum(1, path=PATH("./info/sumInfo.pickle"))
                 app[devices]["header"]["beforeBattery"] = before_battery
                 app[devices]["header"]["afterBattery"] = Monitor.get_battery(devices)
-                app[devices]["header"]["net"] = mc["net"]
-                app[devices]["header"]["monkey_log"] = mc["monkey_log"]
+                app[devices]["header"]["monkey_log"] = monkey_log
                 app[devices]["header"]["time"] = str((end_time - start_time).seconds) + "秒"
                 app[devices]['num'] = num
                 write_info(app, Path.scan_files(select_path=Path.info_path(), postfix='info.pickle'))
-                monkey_log.close()
+                monkeylog.close()
                 break
-    monkey_log.close()
+    monkeylog.close()
     logging.info(read_info(Path.scan_files(select_path=Path.info_path(), postfix='info.pickle')))
     logging.info('测试结束。。。。。')
     report(read_info(Path.scan_files(select_path=Path.info_path(), postfix='info.pickle')))
