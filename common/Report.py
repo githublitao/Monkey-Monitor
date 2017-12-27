@@ -190,7 +190,7 @@ class OperateReport:
     def analysis(self, info):
         for t in info:
             for wrap in t:
-                name = wrap + "detail" # sheet名字
+                name = wrap.split(':')[0] + "detail" # sheet名字
                 worksheet = self.wd.add_worksheet(name)
                 worksheet.set_column("A:A", 10)
                 worksheet.set_column("B:B", 10)
@@ -205,15 +205,15 @@ class OperateReport:
                 worksheet.set_row(4, 30)
                 worksheet.set_row(5, 30)
                 worksheet.set_row(6, 30)
-                define_format_H1 = get_format(self.wd, {'bold': True, 'font_size': 18})
-                define_format_H2 = get_format(self.wd, {'bold': True, 'font_size': 14})
-                define_format_H1.set_border(1)
+                define_format_h1 = get_format(self.wd, {'bold': True, 'font_size': 18})
+                define_format_h2 = get_format(self.wd, {'bold': True, 'font_size': 14})
+                define_format_h1.set_border(1)
 
-                define_format_H2.set_border(1)
-                define_format_H1.set_align("center")
-                define_format_H2.set_align("center")
-                define_format_H2.set_bg_color("blue")
-                define_format_H2.set_color("#ffffff")
+                define_format_h2.set_border(1)
+                define_format_h1.set_align("center")
+                define_format_h2.set_align("center")
+                define_format_h2.set_bg_color("blue")
+                define_format_h2.set_color("#ffffff")
 
                 _write_center(worksheet, "A1", 'cpu(%)', self.wd)
                 _write_center(worksheet, "B1", 'men(M)', self.wd)

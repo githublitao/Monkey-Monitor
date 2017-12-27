@@ -40,11 +40,12 @@ def mkdirInit(devices, app):
     # flow = PATH("../info/" + devices + "_flow.pickle")
     # battery = PATH("../info/" + devices + "_battery.pickle")
     # fps = PATH("../info/" + devices + "_fps.pickle")
-    cpu = Path.info_path()+'\\'+devices + "_cpu.pickle"
-    men = Path.info_path()+'\\'+devices + "_men.pickle"
-    flow = Path.info_path()+'\\'+devices + "_flow.pickle"
-    battery = Path.info_path()+'\\'+devices + "_battery.pickle"
-    fps = Path.info_path()+'\\'+devices + "_fps.pickle"
+    dev = ''.join(devices.split(':'))
+    cpu = Path.info_path()+'\\'+dev + "_cpu.pickle"
+    men = Path.info_path()+'\\'+dev + "_men.pickle"
+    flow = Path.info_path()+'\\'+dev + "_flow.pickle"
+    battery = Path.info_path()+'\\'+dev + "_battery.pickle"
+    fps = Path.info_path()+'\\'+dev + "_fps.pickle"
     app[devices] = {"cpu": cpu, "men": men, "flow": flow, "battery": battery, "fps": fps, "header": get_phone(devices)}
     OperateFile(cpu).mkdir_file()
     OperateFile(men).mkdir_file()
@@ -53,8 +54,8 @@ def mkdirInit(devices, app):
     OperateFile(fps).mkdir_file()
     # OperateFile(PATH("../info/info.pickle")).remove_file()
     # OperateFile(PATH("../info/info.pickle")).mkdir_file()  # 用于记录统计结果的信息，是[{}]的形式
-    OperateFile(Path.info_path()+'\\'+"info.pickle").remove_file()
-    OperateFile(Path.info_path()+'\\'+"info.pickle").mkdir_file()
+    OperateFile(Path.info_path()+'\\'+dev+"_info.pickle").remove_file()
+    OperateFile(Path.info_path()+'\\'+dev+"_info.pickle").mkdir_file()
 
 
 def start(devices):
@@ -77,7 +78,6 @@ def start(devices):
     start_time = datetime.datetime.now()
     logging.info('测试开始时间 '+str(start_time))
     pid = Monitor.get_pid(package_name, devices)
-    uid = Monitor.get_uid(pid, devices)
     cpu_kel = Monitor.get_cpu_kel(devices)
     before_battery = Monitor.get_battery(devices)
     num = 0
@@ -88,7 +88,7 @@ def start(devices):
             Monitor.cpu_rate(pid, cpu_kel, devices)
             Monitor.get_men(package_name, devices)
             Monitor.get_fps(package_name, devices)
-            Monitor.get_flow(uid, devices)
+            Monitor.get_flow(pid, devices)
             Monitor.get_battery(devices)
             if monkeylog.read().count('Monkey finished') > 0:
                 end_time = datetime.datetime.now()
@@ -98,14 +98,17 @@ def start(devices):
                 app[devices]["header"]["monkey_log"] = monkey_log
                 app[devices]["header"]["time"] = str((end_time - start_time).seconds) + "秒"
                 app[devices]['num'] = num
-                write_info(app, Path.scan_files(select_path=Path.info_path(), postfix='info.pickle'))
+                write_info(app, Path.scan_files(select_path=Path.info_path(),
+                                                postfix=''.join(devices.split(':'))+'_info.pickle'))
                 monkeylog.close()
                 break
     monkeylog.close()
-    logging.info(read_info(Path.scan_files(select_path=Path.info_path(), postfix='info.pickle')))
+    logging.info(read_info(Path.scan_files(select_path=Path.info_path(),
+                                           postfix=''.join(devices.split(':'))+'_info.pickle')))
     logging.info('测试结束。。。。。')
-    report(read_info(Path.scan_files(select_path=Path.info_path(), postfix='info.pickle')))
-    os.popen("taskkill /f /t /im adb.exe")
+    report(read_info(Path.scan_files(select_path=Path.info_path(), postfix=''.join(devices.split(':'))+'_info.pickle')),
+           devices)
+    # os.popen("taskkill /f /t /im adb.exe")
 
 
 # 开始脚本测试
@@ -135,7 +138,7 @@ def start_monkey(cmd, log):
 
 def kill_port():
     logging.info('关闭adb服务')
-    os.popen("adb kill-server adb")
+    os.popen("adb kill-server")
     logging.info('开启adb服务')
     os.popen("adb start-server")
 

@@ -1,4 +1,0 @@
-:Monkey: seed=1515385720983 count=10000
-:AllowPackage: com.sixty.nidoneClient
-:IncludeCategory: android.intent.category.LAUNCHER
-:IncludeCategory: android.intent.category.MONKEY

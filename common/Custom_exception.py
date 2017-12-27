@@ -23,3 +23,11 @@ class GetPidError(Exception):
     def __init__(self, err='adb 连接失败或应用未运行，无法获取应用PID'):
         Exception.__init__(self, err)
 
+
+class ConnectDeviceWifi(Exception):
+    """
+    通过WiFi连接设备失败
+    """
+    def __init__(self, err='adb connect 通过WiFi连接设备失败'):
+        Exception.__init__(self, err)
+

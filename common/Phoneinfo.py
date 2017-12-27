@@ -25,10 +25,12 @@ def get_model(devices):
     output = subprocess.check_output(cmd).decode()
     if not output:
         raise ConnectAdbError
-    logging.debug(output)
-    result["version"] = re.findall("version.release=(\d\.\d)*", output, re.S)[0]    # Android 系统，如android 4.0
-    result["phone_name"] = re.findall("ro.product.model=(\S+)*", output, re.S)[0]   # 手机名
-    result["phone_model"] = re.findall("ro.product.brand=(\S+)*", output, re.S)[0]  # 手机品牌
+    try:
+        result["version"] = re.findall("version.release=(\d\.\d)*", output, re.S)[0]    # Android 系统，如android 4.0
+        result["phone_name"] = re.findall("ro.product.model=(\S+)*", output, re.S)[0]   # 手机名
+        result["phone_model"] = re.findall("ro.product.brand=(\S+)*", output, re.S)[0]  # 手机品牌
+    except:
+        result['version'] = result["phone_name"] = result["phone_model"] = devices
     logging.info('设备信息：')
     logging.info(result)
     return result
@@ -65,7 +67,6 @@ def get_cpu_kel(devices):
     output = subprocess.check_output(cmd).split()
     if not output:
         raise ConnectAdbError
-    logging.debug(output)
     s_item = ".".join([x.decode() for x in output]) # 转换为string
     num = str(len(re.findall("processor", s_item))) + "核"
     logging.info('获取手机内核个数：'+num)

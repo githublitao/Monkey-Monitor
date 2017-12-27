@@ -6,10 +6,10 @@ from common.Pickle import read_info
 from common.Report import OperateReport
 
 
-def report(info):
+def report(info, devices):
     try:
         logging.info('初始化测试报告')
-        workbook = xlsxwriter.Workbook(Path.report_path()+'报告.xlsx')
+        workbook = xlsxwriter.Workbook(Path.report_path()+''.join(devices.split(':'))+'报告.xlsx')
         bo = OperateReport(workbook)
         logging.info('生成监控报告')
         bo.monitor(info)

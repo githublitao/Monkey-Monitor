@@ -2,8 +2,9 @@
 # python module for interacting with adb
 import logging
 import os
+import re
 
-from common.Custom_exception import ConnectAdbError
+from common.Custom_exception import ConnectDeviceWifi
 
 """
 基本的adb操作
@@ -23,17 +24,14 @@ class AndroidDebugBridge(object):
         logging.info(command_text)
         results = os.popen(command_text, "r")
         logging.debug("results = " + str(results))
-        if not results:
-            raise ConnectAdbError
-        else:
-            while True:
-                line = results.readline()
-                if not line:
-                    break
-                command_result += line
-            results.close()
-            logging.debug("command_result = " + command_result)
-            return command_result
+        while True:
+            line = results.readline()
+            if not line:
+                break
+            command_result += line
+        results.close()
+        logging.debug("command_result = " + command_result)
+        return command_result
 
     # check for any fast_boot device
     def fast_boot(self, device_id):
@@ -47,10 +45,15 @@ class AndroidDebugBridge(object):
         """
         try:
             logging.info('连接检查设备')
-            result = self.call_adb("devices")
-            logging.debug('连接的设备 ' + result)
-            devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
-            return [device for device in devices if len(device) > 2]
+            result = self.call_adb("devices").partition('\n')[2]
+            # devices = re.split('offline|device', result.partition('\n')[2].replace('\n', '').replace('\t', ''))
+            # devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
+            devices = []
+            for i in result.split('\n'):
+                if i.split('\t')[-1] == 'device':
+                    devices.append(i.split('\t')[0])
+            logging.debug(devices)
+            return devices
         except Exception as e:
             logging.error('连接检查设备失败')
             logging.error(e)
@@ -176,12 +179,27 @@ class AndroidDebugBridge(object):
             logging.error(e)
             raise
 
+    def connect_wifi_devices(self, devices_list):
+        """
+        通过WiFi待测设备
+        :param devices_list: 待测设备的IP地址列表
+        :return:
+        """
+        for i in devices_list:
+            try:
+                result = self.call_adb('connect ' + i)
+                logging.info(result)
+            except ConnectDeviceWifi:
+                logging.error('连接 ' + i + '失败')
+
 
 # if __name__ == '__main__':
 #     logging.basicConfig(level=logging.DEBUG,
 #                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
 #                         datefmt='%a, %d %b %Y %H:%M:%S',
 #                         filemode='w')
-#     reuslt = AndroidDebugBridge().attached_devices()
-#     for info in reuslt:
-#         print(info)
+#     # reuslt = AndroidDebugBridge().attached_devices()
+#     # for info in reuslt:
+#     #     print(info)
+#     l = ['172.16.0.120', ]
+#     AndroidDebugBridge().connect_wifi_devices(l)
