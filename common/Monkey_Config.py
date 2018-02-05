@@ -2,8 +2,8 @@ Monkey = {
     # 基础参数
     'head':
         {
-            '-p': 'com.sixty.nidoneClient',   # 待测应用包名
-            '--throttle': '5',    # 按键操作间隔，单位毫秒
+            '-p': 'com.sixtyplus.nidfit.treadmill.app',   # 待测应用包名
+            '--throttle': '50',    # 按键操作间隔，单位毫秒
             '-s': '',     # 指定产生随机事件种子值，相同的种子值产生相同的事件序列。如： -s 200
             },
     # 发送的事件类型
@@ -33,7 +33,7 @@ Monkey = {
             '-v -v': False,     # 提供较为详细的日志，包括每个发送到Activity的事件信息
             '-v -v -v': True    # 最详细的日志，包括了测试中选中/未选中的Activity信息
             },
-    'time': '50000'   # 事件个数
+    'time': '500000'   # 事件个数
 }
 
 
